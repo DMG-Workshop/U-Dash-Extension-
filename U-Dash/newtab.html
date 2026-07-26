@@ -5,17 +5,17 @@
     <title>U-Dash Dashboard</title>
     <style>
         :root {
-            --bg-color: #1a1b26;
-            --card-bg: #24283b;
-            --accent: #7aa2f7;
-            --text-color: #c0caf5;
+            --bg-color: #0b120c;
+            --card-bg: #111c13;
+            --accent: #23d160;
+            --text-color: #a7c0a9;
             --border-color: #414868;
-            --down-color: #f7768e;
-            --folder-bg: #1f2335;
+            --down-color: #ff3860;
+            --folder-bg: #0f1811;
         }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: system-ui, sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
 
-        /* Top Navigation (Pages) */
+        /* Top Navigation (Pages & Settings) */
         .top-nav { background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); display: flex; padding: 0 20px; align-items: center; overflow-x: auto; gap: 5px; }
         .nav-brand { font-weight: bold; color: var(--accent); margin-right: 20px; font-size: 1.2rem; }
         .page-tab { padding: 15px 20px; cursor: pointer; color: var(--text-color); border-bottom: 3px solid transparent; transition: 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
@@ -26,6 +26,8 @@
         .tab-edit:hover { color: var(--accent); }
         .add-page-btn { padding: 10px 15px; color: #888; cursor: pointer; font-weight: bold; font-size: 1.2rem; transition: 0.2s; }
         .add-page-btn:hover { color: var(--accent); transform: scale(1.1); }
+        .settings-btn { margin-left: auto; color: #888; font-size: 1.3rem; cursor: pointer; transition: 0.2s; padding: 10px; }
+        .settings-btn:hover { color: var(--accent); transform: rotate(45deg); }
 
         /* Main Content Container */
         .container { width: 100%; max-width: 1200px; padding: 2rem; margin: 0 auto; flex: 1; }
@@ -63,9 +65,9 @@
         /* Action Bar */
         .action-bar { display: flex; gap: 15px; margin-top: 25px; }
         .dash-action-btn { flex: 1; background: transparent; border: 2px dashed var(--border-color); color: #888; padding: 15px; border-radius: 12px; cursor: pointer; text-align: center; font-weight: bold; transition: 0.2s; }
-        .dash-action-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(122, 162, 247, 0.05); }
+        .dash-action-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(35, 209, 96, 0.05); }
 
-        /* Universal Modal */
+        /* Modals */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--bg-color); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; width: 400px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
@@ -74,7 +76,7 @@
         .form-group input { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px; border-radius: 6px; outline: none; }
         .form-group input:focus { border-color: var(--accent); }
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-        .btn { padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; border: none; outline: none; transition: 0.2s; }
+        .btn { padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; border: none; outline: none; transition: 0.2s; width: 100%; text-align: center; }
         .btn-cancel { background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
         .btn-cancel:hover { background: var(--border-color); }
         .btn-save { background: var(--accent); color: #000; }
@@ -87,6 +89,7 @@
         <div class="nav-brand">U-Dash</div>
         <div id="tabs-container" style="display:flex; overflow-x:auto;"></div>
         <div class="add-page-btn" id="btn-add-page" title="Add New Page">+</div>
+        <div class="settings-btn" id="btn-settings" title="Data Management">⚙️</div>
     </div>
 
     <div class="container">
@@ -110,8 +113,25 @@
             <h3 id="modal-title" class="modal-title">Edit Item</h3>
             <div class="form-group" id="modal-fields"></div>
             <div class="modal-actions">
-                <button class="btn btn-cancel" id="modal-cancel">Cancel</button>
-                <button class="btn btn-save" id="modal-save">Save</button>
+                <button class="btn btn-cancel" id="modal-cancel" style="width:auto;">Cancel</button>
+                <button class="btn btn-save" id="modal-save" style="width:auto;">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings / Import & Export Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-title">Data Management</h3>
+            <div class="form-group">
+                <p style="font-size: 0.9rem; color: #888; margin-top: 0; line-height:1.4;">Export your complete dashboard layout (Pages, Folders, Links, and RSS Widgets) as a JSON file, or restore from a previous backup.</p>
+                <button class="btn btn-save" id="btn-export-json">📥 Export Backup (JSON)</button>
+
+                <input type="file" id="import-json-file" accept=".json" style="display: none;">
+                <button class="btn btn-cancel" id="btn-import-json">📂 Import Backup (JSON)</button>
+            </div>
+            <div class="modal-actions" style="justify-content: center; margin-top: 20px;">
+                <button class="btn btn-cancel" id="settings-close" style="width:100%;">Close</button>
             </div>
         </div>
     </div>
