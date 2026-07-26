@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>U-Dash Options</title>
+    <style>
+        body { background: #1a1b26; color: #a9b1d6; font-family: sans-serif; padding: 40px; display: flex; justify-content: center; }
+        .card { background: #24283b; border: 1px solid #414868; padding: 30px; border-radius: 12px; width: 450px; }
+        h1 { color: #7aa2f7; margin-top: 0; font-size: 1.5rem; border-bottom: 1px solid #414868; padding-bottom: 10px; }
+        .option-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .label-title { font-weight: bold; color: #c0caf5; }
+        .label-desc { font-size: 0.8rem; color: #565f89; margin-top: 4px; }
+        input[type="checkbox"] { width: 18px; height: 16px; accent-color: #7aa2f7; cursor: pointer; }
+        .status { font-size: 0.85rem; color: #9ece6a; text-align: center; margin-top: 20px; font-weight: bold; display: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>U-Dash Component Toggles</h1>
+        <div class="option-row">
+            <div>
+                <div class="label-title">Enable New Tab Page</div>
+                <div class="label-desc">Overwrites your browser's default blank tab with your grid dashboard.</div>
+            </div>
+            <input type="checkbox" id="toggle-newtab" checked>
+        </div>
+        <div class="option-row">
+            <div>
+                <div class="label-title">Enable Icon Popup Menu</div>
+                <div class="label-desc">Unchecking this forces clicking the extension icon to load a full dashboard tab.</div>
+            </div>
+            <input type="checkbox" id="toggle-popup" checked>
+        </div>
+        <div id="status-msg" class="status">✓ Preferences Saved!</div>
+    </div>
+    <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>U-Dash Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #1a1b26;
+            --card-bg: #24283b;
+            --accent: #7aa2f7;
+            --text-color: #c0caf5;
+            --border-color: #414868;
+            --down-color: #f7768e;
+            --folder-bg: #1f2335;
+        }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: system-ui, sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+
+        /* Top Navigation (Pages) */
+        .top-nav { background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); display: flex; padding: 0 20px; align-items: center; overflow-x: auto; gap: 5px; }
+        .nav-brand { font-weight: bold; color: var(--accent); margin-right: 20px; font-size: 1.2rem; }
+        .page-tab { padding: 15px 20px; cursor: pointer; color: var(--text-color); border-bottom: 3px solid transparent; transition: 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+        .page-tab:hover { background-color: rgba(255,255,255,0.05); }
+        .page-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: bold; }
+        .tab-edit { font-size: 0.8rem; color: #888; opacity: 0; transition: 0.2s; }
+        .page-tab:hover .tab-edit { opacity: 1; }
+        .tab-edit:hover { color: var(--accent); }
+        .add-page-btn { padding: 10px 15px; color: #888; cursor: pointer; font-weight: bold; font-size: 1.2rem; transition: 0.2s; }
+        .add-page-btn:hover { color: var(--accent); transform: scale(1.1); }
+
+        /* Main Content Container */
+        .container { width: 100%; max-width: 1200px; padding: 2rem; margin: 0 auto; flex: 1; }
+        #clock { font-size: 3rem; font-weight: 300; margin-bottom: 2rem; color: var(--accent); font-family: monospace; text-align: center; }
+        .search-container { display: flex; justify-content: center; margin-bottom: 3rem; }
+        .search-container input { width: 100%; max-width: 600px; padding: 14px 24px; font-size: 1.1rem; background-color: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 50px; outline: none; transition: border-color 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .search-container input:focus { border-color: var(--accent); }
+
+        /* Folders & Grids */
+        .folders-wrapper { display: flex; flex-direction: column; gap: 2rem; }
+        .folder-block { background: var(--folder-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        .folder-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .folder-title { font-size: 1.2rem; font-weight: bold; color: var(--text-color); display: flex; align-items: center; gap: 10px; }
+        .folder-actions button { background: none; border: none; color: #888; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .folder-actions button:hover { color: var(--accent); }
+        .folder-actions .delete-folder:hover { color: var(--down-color); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+        .link-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; text-decoration: none; color: var(--text-color); font-weight: bold; transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; position: relative; }
+        .link-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+        .initial-icon { font-size: 1.5rem; background: rgba(0,0,0,0.3); width: 40px; height: 40px; line-height: 40px; text-align: center; border-radius: 8px; color: var(--accent); }
+
+        /* RSS Widget Styles */
+        .rss-container { display: flex; flex-direction: column; gap: 8px; }
+        .rss-item { color: var(--text-color); text-decoration: none; padding: 8px 10px; border-radius: 6px; transition: background 0.2s, color 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; border: 1px solid transparent; }
+        .rss-item:hover { background: var(--card-bg); border-color: var(--border-color); color: var(--accent); }
+
+        /* Link Hover Controls */
+        .link-controls { position: absolute; top: 5px; right: 5px; display: none; gap: 5px; }
+        .link-card:hover .link-controls { display: flex; }
+        .link-ctrl-btn { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 4px; padding: 2px 6px; font-size: 0.8rem; cursor: pointer; }
+        .link-ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .link-ctrl-btn.del:hover { border-color: var(--down-color); color: var(--down-color); }
+
+        /* Action Bar */
+        .action-bar { display: flex; gap: 15px; margin-top: 25px; }
+        .dash-action-btn { flex: 1; background: transparent; border: 2px dashed var(--border-color); color: #888; padding: 15px; border-radius: 12px; cursor: pointer; text-align: center; font-weight: bold; transition: 0.2s; }
+        .dash-action-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(122, 162, 247, 0.05); }
+
+        /* Universal Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--bg-color); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; width: 400px; max-width: 90%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .modal-title { margin-top: 0; color: var(--accent); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .form-group input { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 12px; border-radius: 6px; outline: none; }
+        .form-group input:focus { border-color: var(--accent); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .btn { padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; border: none; outline: none; transition: 0.2s; }
+        .btn-cancel { background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+        .btn-cancel:hover { background: var(--border-color); }
+        .btn-save { background: var(--accent); color: #000; }
+        .btn-save:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <div class="nav-brand">U-Dash</div>
+        <div id="tabs-container" style="display:flex; overflow-x:auto;"></div>
+        <div class="add-page-btn" id="btn-add-page" title="Add New Page">+</div>
+    </div>
+
+    <div class="container">
+        <h1 id="clock">00:00</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search Google or enter IP..." autofocus autocomplete="off">
+        </div>
+
+        <!-- Folders and Widgets inject here -->
+        <div id="folders-wrapper" class="folders-wrapper"></div>
+
+        <div class="action-bar">
+            <div id="global-add-folder" class="dash-action-btn">+ Add Folder</div>
+            <div id="global-add-rss" class="dash-action-btn">+ Add RSS Widget</div>
+        </div>
+    </div>
+
+    <!-- Universal CRUD Modal -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modal-title" class="modal-title">Edit Item</h3>
+            <div class="form-group" id="modal-fields"></div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" id="modal-cancel">Cancel</button>
+                <button class="btn btn-save" id="modal-save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="newtab.js"></script>
+</body>
+</html>
